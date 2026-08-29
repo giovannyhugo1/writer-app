@@ -1,6 +1,6 @@
 const CACHE_NAME = 'writer-pwa-v1';
 const urlsToCache = [
-    './writer.html',
+    './index.html',
     './manifest.json'
 ];
 
