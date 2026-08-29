@@ -1,0 +1,10 @@
+{
+  "name": "耄耋写作",
+  "short_name": "耄耋",
+  "description": "个人写作助手",
+  "start_url": "./writer.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a90d9",
+  "icons": []
+}
