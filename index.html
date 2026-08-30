@@ -1201,7 +1201,68 @@
             navigateTo('home');
             showToast('数据已清空');
         }
+        // ==================== 导出功能 ====================
+function generateWorkText(workId, format) {
+    const work = getWorkById(workId);
+    if (!work) return '';
+    let output = '';
+    const lineBreak = '\n';
 
+    if (format === 'txt') {
+        output += `《${work.title}》\n`;
+        output += `作者：${work.author}\n`;
+        if (work.intro) output += `简介：${work.intro}\n`;
+        output += lineBreak;
+        output += `====================\n\n`;
+    } else if (format === 'markdown') {
+        output += `# ${work.title}\n\n`;
+        output += `**作者：** ${work.author}\n\n`;
+        if (work.intro) output += `**简介：** ${work.intro}\n\n`;
+        output += `---\n\n`;
+    }
+
+    work.volumes.forEach(vol => {
+        if (format === 'txt') {
+            output += `【${vol.title}】\n`;
+        } else if (format === 'markdown') {
+            output += `## ${vol.title}\n\n`;
+        }
+
+        vol.chapters.forEach(ch => {
+            if (format === 'txt') {
+                output += `\n${ch.title}\n`;
+                output += `${ch.content}\n`;
+                output += `\n`;
+            } else if (format === 'markdown') {
+                output += `### ${ch.title}\n\n`;
+                output += `${ch.content}\n\n`;
+            }
+        });
+    });
+
+    return output;
+}
+
+function exportWork(workId, format) {
+    const work = getWorkById(workId);
+    if (!work) {
+        showToast('作品不存在');
+        return;
+    }
+    const content = generateWorkText(workId, format);
+    const safeTitle = work.title.replace(/[\\/:*?"<>|]/g, '_');
+    const fileName = `${safeTitle}.${format === 'txt' ? 'txt' : 'md'}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`已导出 ${fileName}`);
+    }
         // ==================== 初始化 ====================
         window.onload = function() {
             navigateTo('home');
