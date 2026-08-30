@@ -414,15 +414,75 @@
 
     <!-- 工具视图 -->
     <div id="view-tools" class="main-content hidden">
-        <div class="app-header">
-            <div class="title">工具</div>
+    <div class="app-header">
+        <div class="title">工具</div>
+    </div>
+    <div style="margin-top:16px;">
+        <!-- 导出作品 -->
+        <div class="card" onclick="showExportModal()" style="cursor:pointer;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">📤</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">导出作品</div>
+                    <div style="font-size:13px; color:#777;">导出为TXT或Markdown文件</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
         </div>
-        <div style="text-align:center; margin-top:60px; color:#999;">
-            <div style="font-size:40px;">🔧</div>
-            <p>起名助手、字数统计、码字时速、历史版本、长图分享等</p>
-            <p>即将上线，敬请期待</p>
+        <!-- 导入作品（暂不开放） -->
+        <div class="card" onclick="showToast('导入功能暂未开放')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">📥</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">导入作品</div>
+                    <div style="font-size:13px; color:#777;">从文件恢复数据（即将上线）</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <!-- 其他工具占位 -->
+        <div class="card" onclick="showToast('起名助手开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">✍️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">起名助手</div>
+                    <div style="font-size:13px; color:#777;">随机生成人名、地名、书名</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('码字时速开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">⏱️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">码字时速</div>
+                    <div style="font-size:13px; color:#777;">统计写作速度和时长</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('历史版本开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">🕒</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">历史版本</div>
+                    <div style="font-size:13px; color:#777;">回溯章节修改记录</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('长图分享开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">🖼️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">长图分享</div>
+                    <div style="font-size:13px; color:#777;">生成章节图片分享</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
         </div>
     </div>
+</div>
 
     <!-- 我的视图 -->
     <div id="view-profile" class="main-content hidden">
@@ -1267,6 +1327,45 @@ function exportWork(workId, format) {
     URL.revokeObjectURL(url);
     showToast(`已导出 ${fileName}`);
     }
+         // ==================== 工具栏导出弹窗 ====================
+function showExportModal() {
+    if (appData.works.length === 0) {
+        showToast('暂无作品可导出');
+        return;
+    }
+    let workOptions = '';
+    appData.works.forEach(work => {
+        workOptions += `<option value="${work.id}">${work.title}</option>`;
+    });
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-title">导出作品</div>
+            <label>选择作品</label>
+            <select id="export-work-select">
+                ${workOptions}
+            </select>
+            <label>导出格式</label>
+            <select id="export-format-select">
+                <option value="txt">TXT 文本</option>
+                <option value="markdown">Markdown</option>
+            </select>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                <button class="btn" onclick="confirmExport()">导出</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('modal-container').appendChild(modal);
+}
+
+function confirmExport() {
+    const workId = document.getElementById('export-work-select').value;
+    const format = document.getElementById('export-format-select').value;
+    exportWork(workId, format);
+    document.querySelector('.modal-overlay').remove();
+}
         // ==================== 初始化 ====================
         window.onload = function() {
             navigateTo('home');
