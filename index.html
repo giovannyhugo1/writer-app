@@ -796,7 +796,11 @@
                 </div>
                 <div style="font-size:13px; color:#555; margin-bottom:8px;">${work.intro || '暂无简介'}</div>
                 <div style="font-size:12px; color:#999;">${totalTextChapters}章 · 正文${totalWords}字</div>
-            `;
+                <div style="display:flex; gap:10px; margin-top:12px;">
+                        <button class="btn btn-outline btn-small" onclick="exportWork('${work.id}', 'txt')">导出TXT</button>
+                        <button class="btn btn-outline btn-small" onclick="exportWork('${work.id}', 'markdown')">导出Markdown</button>
+                </div>
+             `;
             renderVolumeList();
         }
 
