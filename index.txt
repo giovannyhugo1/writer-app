@@ -1,0 +1,1387 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+     <link rel="manifest" href="manifest.json">
+     <meta name="theme-color" content="#4a90d9">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>耄耋写作</title>
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --card: #ffffff;
+            --primary: #4a90d9;
+            --text: #333333;
+            --text-light: #777777;
+            --border: #e0e0e0;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --header-height: 50px;
+            --tab-height: 60px;
+            --bottom-safe: env(safe-area-inset-bottom, 0px);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+        /* 通用头部 */
+        .app-header {
+            height: var(--header-height);
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 18px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .app-header .back-btn {
+            margin-right: 12px;
+            font-size: 22px;
+            cursor: pointer;
+            width: 30px;
+            text-align: center;
+        }
+        .app-header .title {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .app-header .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .app-header .header-actions span {
+            cursor: pointer;
+            font-size: 16px;
+        }
+        /* 底部导航 */
+        .bottom-nav {
+            height: calc(var(--tab-height) + var(--bottom-safe));
+            padding-bottom: var(--bottom-safe);
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-shrink: 0;
+        }
+        .bottom-nav .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .bottom-nav .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .bottom-nav .nav-item .nav-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+        }
+        /* 卡片样式 */
+        .card {
+            background: var(--card);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        /* 作品列表 */
+        .work-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .work-item:active { transform: scale(0.98); }
+        .work-cover {
+            width: 50px;
+            height: 70px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-right: 14px;
+            flex-shrink: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .work-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .work-title {
+            font-size: 17px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .work-author {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+        .work-stats {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+        .work-menu {
+            font-size: 20px;
+            color: var(--text-light);
+            padding: 8px;
+            cursor: pointer;
+        }
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .btn-small {
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+        /* 表单 */
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        /* 卷和章节列表 */
+        .volume-item {
+            margin-bottom: 8px;
+        }
+        .volume-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .volume-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .volume-actions {
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        .chapter-title {
+            flex: 1;
+            font-size: 14px;
+            margin-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chapter-type {
+            font-size: 11px;
+            background: #eef2f7;
+            color: var(--text-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+        }
+        .chapter-actions {
+            display: flex;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        .chapter-actions span {
+            padding: 4px;
+            cursor: pointer;
+        }
+        /* 编辑器 */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+        }
+        .editor-header {
+            height: var(--header-height);
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .editor-header .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+        .editor-header .icon-btn:active { background: rgba(255,255,255,0.2); }
+        .editor-header .word-count {
+            font-size: 13px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .editor-header .chapter-name {
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 15px;
+        }
+        .editor-textarea {
+            flex: 1;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.6;
+            border: none;
+            outline: none;
+            resize: none;
+            background: white;
+            user-select: text;
+            -webkit-user-select: text;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .editor-footer {
+            height: 36px;
+            background: #f8f8f8;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            font-size: 12px;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+        .editor-footer .footer-right {
+            display: flex;
+            gap: 12px;
+        }
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 85%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .hidden { display: none !important; }
+        /* 工具提示 */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 200;
+            animation: fadeInOut 2s ease;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主页视图 -->
+    <div id="view-home" class="main-content">
+        <div class="app-header">
+            <div class="title">我的书架</div>
+            <div class="header-actions">
+                <span onclick="showNewWorkModal()" title="新建作品">➕</span>
+                <span onclick="showToast('数据已保存到本地')" title="保存">💾</span>
+                <span onclick="showToast('工具功能开发中')" title="工具">🛠️</span>
+            </div>
+        </div>
+        <div id="works-list"></div>
+        <div id="empty-hint" style="text-align:center; margin-top:40px; color:#999;">
+            <div style="font-size:40px;">📚</div>
+            <p>还没有作品，点击右上角 ➕ 新建</p>
+        </div>
+    </div>
+
+    <!-- 工具视图 -->
+    <div id="view-tools" class="main-content hidden">
+    <div class="app-header">
+        <div class="title">工具</div>
+    </div>
+    <div style="margin-top:16px;">
+        <!-- 导出作品 -->
+        <div class="card" onclick="showExportModal()" style="cursor:pointer;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">📤</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">导出作品</div>
+                    <div style="font-size:13px; color:#777;">导出为TXT或Markdown文件</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <!-- 导入作品（暂不开放） -->
+        <div class="card" onclick="showToast('导入功能暂未开放')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">📥</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">导入作品</div>
+                    <div style="font-size:13px; color:#777;">从文件恢复数据（即将上线）</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <!-- 其他工具占位 -->
+        <div class="card" onclick="showToast('起名助手开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">✍️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">起名助手</div>
+                    <div style="font-size:13px; color:#777;">随机生成人名、地名、书名</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('码字时速开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">⏱️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">码字时速</div>
+                    <div style="font-size:13px; color:#777;">统计写作速度和时长</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('历史版本开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">🕒</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">历史版本</div>
+                    <div style="font-size:13px; color:#777;">回溯章节修改记录</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+        <div class="card" onclick="showToast('长图分享开发中')" style="cursor:pointer; opacity:0.6;">
+            <div style="display:flex; align-items:center;">
+                <div style="font-size:28px; margin-right:12px;">🖼️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:16px;">长图分享</div>
+                    <div style="font-size:13px; color:#777;">生成章节图片分享</div>
+                </div>
+                <span style="color:#999;">›</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- 我的视图 -->
+    <div id="view-profile" class="main-content hidden">
+        <div class="app-header">
+            <div class="title">我的</div>
+        </div>
+        <div class="card">
+            <div style="display:flex; align-items:center;">
+                <div style="width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin-right:16px;">我</div>
+                <div>
+                    <div style="font-weight:600; font-size:18px;">写作爱好者</div>
+                    <div style="color:var(--text-light); font-size:13px;">一个热爱创作的人</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div style="display:grid; grid-template-columns: repeat(4,1fr); text-align:center;">
+                <div><div id="stat-works" style="font-size:20px; font-weight:600;">0</div><div style="font-size:12px; color:#777;">作品</div></div>
+                <div><div id="stat-chapters" style="font-size:20px; font-weight:600;">0</div><div style="font-size:12px; color:#777;">章节</div></div>
+                <div><div id="stat-words" style="font-size:20px; font-weight:600;">0</div><div style="font-size:12px; color:#777;">总字数</div></div>
+                <div><div id="stat-time" style="font-size:20px; font-weight:600;">0</div><div style="font-size:12px; color:#777;">小时</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">主题色 <span style="float:right; color:#999;">默认蓝</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">深色模式 <span style="float:right; color:#999;">暂未开放</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">应用锁 <span style="float:right; color:#999;">暂未开放</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">屏幕方向 <span style="float:right; color:#999;">暂未开放</span></div>
+        </div>
+        <div class="card">
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">同步备份 <span style="float:right; color:#999;">开发中</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">成就系统 <span style="float:right; color:#999;">开发中</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">关于我们 <span style="float:right; color:#999;">v0.1</span></div>
+            <div style="padding:12px 0; color:var(--danger); cursor:pointer;" onclick="clearAllData()">清空数据</div>
+            <div style="padding:12px 0; color:var(--danger); cursor:pointer;">退出登录</div>
+        </div>
+    </div>
+
+    <!-- 作品详情视图 -->
+    <div id="view-work-detail" class="main-content hidden">
+        <div class="app-header">
+            <div class="back-btn" onclick="navigateTo('home')">←</div>
+            <div class="title" id="detail-work-title">作品详情</div>
+            <div class="header-actions">
+                <span onclick="showEditWorkModal(currentWorkId)">✏️</span>
+                <span onclick="deleteWork(currentWorkId)">🗑️</span>
+            </div>
+        </div>
+        <!-- 作品信息卡片 -->
+        <div class="card" id="work-info-card"></div>
+        <!-- Tab切换 -->
+        <div style="display:flex; margin-bottom:16px; background:white; border-radius:8px; overflow:hidden;">
+            <div id="tab-catalog" class="tab-btn active" style="flex:1; text-align:center; padding:10px; cursor:pointer; background:var(--primary); color:white;" onclick="switchTab('catalog')">目录</div>
+            <div id="tab-related" class="tab-btn" style="flex:1; text-align:center; padding:10px; cursor:pointer; background:#f0f0f0; color:#555;" onclick="switchTab('related')">相关</div>
+        </div>
+        <!-- 卷和章节列表 -->
+        <div id="volume-list-container"></div>
+        <div style="margin-top:12px;">
+            <button class="btn" onclick="showAddVolumeModal()">➕ 新建分卷</button>
+        </div>
+    </div>
+
+    <!-- 编辑器视图 -->
+    <div id="view-editor" class="editor-container hidden">
+        <div class="editor-header">
+            <div class="icon-btn" onclick="exitEditor()">←</div>
+            <span class="word-count" id="editor-word-count">0字</span>
+            <div class="chapter-name" id="editor-chapter-title">章节</div>
+            <div class="icon-btn" onclick="saveCurrentChapter()">💾</div>
+            <div class="icon-btn" onclick="smartFormat()">✨</div>
+            <div class="icon-btn" onclick="undoEdit()">↩️</div>
+            <div class="icon-btn" onclick="redoEdit()">↪️</div>
+        </div>
+        <textarea id="editor-textarea" class="editor-textarea" placeholder="开始创作..."></textarea>
+        <div class="editor-footer">
+            <span id="editor-stats">字数:0 | 速度:0字/分 | 时长:0:00</span>
+            <div class="footer-right">
+                <span onclick="document.getElementById('editor-textarea').focus()">✍️</span>
+                <span onclick="showToast('设置功能开发中')">⚙️</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav" id="bottom-nav">
+        <div class="nav-item active" data-view="home" onclick="navigateTo('home')">
+            <div class="nav-icon">🏠</div>
+            <div>主页</div>
+        </div>
+        <div class="nav-item" data-view="tools" onclick="navigateTo('tools')">
+            <div class="nav-icon">🔧</div>
+            <div>工具</div>
+        </div>
+        <div class="nav-item" data-view="profile" onclick="navigateTo('profile')">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+
+    <!-- 弹窗容器 -->
+    <div id="modal-container"></div>
+
+    <script>
+        // ==================== 数据管理 ====================
+        const STORAGE_KEY = 'writer_app_data';
+        let appData = loadData();
+        let currentView = 'home';
+        let currentWorkId = null;
+        let currentVolumeId = null;
+        let currentChapterId = null;
+        let currentChapterType = 'text'; // text, setting, outline
+        let editorStartTime = null;
+        let editorTimer = null;
+        let wordCountInterval = null;
+        let undoStack = [];
+        let redoStack = [];
+        let lastSavedContent = '';
+        let autoSaveTimeout = null;
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch(e) {
+                    console.error('数据解析失败', e);
+                }
+            }
+            return { works: [], settings: { lastDailyPrompt: '' } };
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        // ==================== 工具函数 ====================
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
+
+        function getWorkById(id) {
+            return appData.works.find(w => w.id === id);
+        }
+
+        function getVolume(work, volumeId) {
+            return work.volumes.find(v => v.id === volumeId);
+        }
+
+        function getChapter(work, volumeId, chapterId) {
+            const vol = getVolume(work, volumeId);
+            if (!vol) return null;
+            return vol.chapters.find(c => c.id === chapterId);
+        }
+
+        function countWords(text) {
+            if (!text) return 0;
+            return text.replace(/\s/g, '').length;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function getRandomColor() {
+            const colors = ['#4a90d9', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // ==================== 导航 ====================
+        function navigateTo(view) {
+            // 隐藏所有主视图
+            document.querySelectorAll('.main-content, .editor-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            currentView = view;
+            switch(view) {
+                case 'home':
+                    document.getElementById('view-home').classList.remove('hidden');
+                    renderWorksList();
+                    break;
+                case 'tools':
+                    document.getElementById('view-tools').classList.remove('hidden');
+                    break;
+                case 'profile':
+                    document.getElementById('view-profile').classList.remove('hidden');
+                    updateProfileStats();
+                    break;
+            }
+            // 更新底部导航激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === view);
+            });
+        }
+
+        // ==================== 主页书架 ====================
+        function renderWorksList() {
+            const container = document.getElementById('works-list');
+            const emptyHint = document.getElementById('empty-hint');
+            container.innerHTML = '';
+            if (appData.works.length === 0) {
+                emptyHint.style.display = 'block';
+                return;
+            }
+            emptyHint.style.display = 'none';
+            appData.works.forEach(work => {
+                const totalChapters = work.volumes.reduce((sum, vol) => sum + vol.chapters.filter(c => c.type === 'text').length, 0);
+                const totalWords = work.volumes.reduce((sum, vol) => sum + vol.chapters.filter(c => c.type === 'text').reduce((s, c) => s + countWords(c.content), 0), 0);
+                const item = document.createElement('div');
+                item.className = 'work-item';
+                item.innerHTML = `
+                    <div class="work-cover" style="background:${work.coverColor};">${work.title.charAt(0)}</div>
+                    <div class="work-info" onclick="openWorkDetail('${work.id}')">
+                        <div class="work-title">${work.title}</div>
+                        <div class="work-author">${work.author}</div>
+                        <div class="work-stats">${totalChapters}章 · ${totalWords}字</div>
+                    </div>
+                    <div class="work-menu" onclick="showWorkMenu(event, '${work.id}')">⋮</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function showWorkMenu(event, workId) {
+            event.stopPropagation();
+            // 简单菜单：编辑、删除
+            const action = confirm('选择操作：\n确定=编辑，取消=删除');
+            if (action) {
+                showEditWorkModal(workId);
+            } else {
+                deleteWork(workId);
+            }
+        }
+
+        function showNewWorkModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">新建作品</div>
+                    <label>书名</label>
+                    <input type="text" id="new-work-title" placeholder="请输入书名">
+                    <label>作者</label>
+                    <input type="text" id="new-work-author" placeholder="请输入作者名">
+                    <label>简介</label>
+                    <textarea id="new-work-intro" placeholder="作品简介"></textarea>
+                    <label>标签（用逗号分隔）</label>
+                    <input type="text" id="new-work-tags" placeholder="如：玄幻, 热血, 穿越">
+                    <div class="modal-actions">
+                        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                        <button class="btn" onclick="createNewWork()">创建</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-container').appendChild(modal);
+        }
+
+        function createNewWork() {
+            const title = document.getElementById('new-work-title').value.trim();
+            const author = document.getElementById('new-work-author').value.trim() || '佚名';
+            const intro = document.getElementById('new-work-intro').value.trim();
+            const tags = document.getElementById('new-work-tags').value.split(',').map(t => t.trim()).filter(t => t);
+            if (!title) {
+                showToast('请输入书名');
+                return;
+            }
+            const work = {
+                id: generateId(),
+                title: title,
+                author: author,
+                intro: intro,
+                tags: tags,
+                coverColor: getRandomColor(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                volumes: []
+            };
+            appData.works.push(work);
+            saveData();
+            document.querySelector('.modal-overlay').remove();
+            renderWorksList();
+            showToast('作品创建成功');
+        }
+
+        function showEditWorkModal(workId) {
+            const work = getWorkById(workId);
+            if (!work) return;
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">编辑作品信息</div>
+                    <label>书名</label>
+                    <input type="text" id="edit-work-title" value="${work.title}">
+                    <label>作者</label>
+                    <input type="text" id="edit-work-author" value="${work.author}">
+                    <label>简介</label>
+                    <textarea id="edit-work-intro">${work.intro}</textarea>
+                    <label>标签（用逗号分隔）</label>
+                    <input type="text" id="edit-work-tags" value="${work.tags.join(', ')}">
+                    <div class="modal-actions">
+                        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                        <button class="btn" onclick="updateWork('${workId}')">保存</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-container').appendChild(modal);
+        }
+
+        function updateWork(workId) {
+            const work = getWorkById(workId);
+            if (!work) return;
+            work.title = document.getElementById('edit-work-title').value.trim() || work.title;
+            work.author = document.getElementById('edit-work-author').value.trim() || work.author;
+            work.intro = document.getElementById('edit-work-intro').value.trim();
+            work.tags = document.getElementById('edit-work-tags').value.split(',').map(t => t.trim()).filter(t => t);
+            work.updatedAt = new Date().toISOString();
+            saveData();
+            document.querySelector('.modal-overlay').remove();
+            if (currentView === 'home') renderWorksList();
+            if (currentView === 'work-detail') {
+                renderWorkDetail();
+                document.getElementById('detail-work-title').textContent = work.title;
+            }
+            showToast('已保存');
+        }
+
+        function deleteWork(workId) {
+            if (!confirm('确定删除该作品？所有章节内容将丢失！')) return;
+            appData.works = appData.works.filter(w => w.id !== workId);
+            saveData();
+            if (currentView === 'work-detail') navigateTo('home');
+            else renderWorksList();
+            showToast('已删除');
+        }
+
+        // ==================== 作品详情页 ====================
+        function openWorkDetail(workId) {
+            currentWorkId = workId;
+            document.querySelectorAll('.main-content, .editor-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('view-work-detail').classList.remove('hidden');
+            currentView = 'work-detail';
+            renderWorkDetail();
+        }
+
+        function renderWorkDetail() {
+            const work = getWorkById(currentWorkId);
+            if (!work) return;
+            document.getElementById('detail-work-title').textContent = work.title;
+            // 信息卡片
+            const totalTextChapters = work.volumes.reduce((sum, vol) => sum + vol.chapters.filter(c => c.type === 'text').length, 0);
+            const totalWords = work.volumes.reduce((sum, vol) => sum + vol.chapters.filter(c => c.type === 'text').reduce((s, c) => s + countWords(c.content), 0), 0);
+            const infoCard = document.getElementById('work-info-card');
+            infoCard.innerHTML = `
+                <div style="display:flex; align-items:center; margin-bottom:12px;">
+                    <div style="width:60px; height:80px; background:${work.coverColor}; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:28px; color:white; margin-right:16px;">${work.title.charAt(0)}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:18px; font-weight:600;">${work.title}</div>
+                        <div style="font-size:13px; color:#777;">${work.author}</div>
+                        <div style="font-size:12px; color:#999; margin-top:4px;">${work.tags.join(' · ') || '无标签'}</div>
+                    </div>
+                </div>
+                <div style="font-size:13px; color:#555; margin-bottom:8px;">${work.intro || '暂无简介'}</div>
+                <div style="font-size:12px; color:#999;">${totalTextChapters}章 · 正文${totalWords}字</div>
+                <div style="display:flex; gap:10px; margin-top:12px;">
+                        <button class="btn btn-outline btn-small" onclick="exportWork('${work.id}', 'txt')">导出TXT</button>
+                        <button class="btn btn-outline btn-small" onclick="exportWork('${work.id}', 'markdown')">导出Markdown</button>
+                </div>
+             `;
+            renderVolumeList();
+        }
+
+        let currentDetailTab = 'catalog'; // 'catalog' or 'related'
+        function switchTab(tab) {
+            currentDetailTab = tab;
+            if (tab === 'catalog') {
+                document.getElementById('tab-catalog').style.background = 'var(--primary)';
+                document.getElementById('tab-catalog').style.color = 'white';
+                document.getElementById('tab-related').style.background = '#f0f0f0';
+                document.getElementById('tab-related').style.color = '#555';
+            } else {
+                document.getElementById('tab-related').style.background = 'var(--primary)';
+                document.getElementById('tab-related').style.color = 'white';
+                document.getElementById('tab-catalog').style.background = '#f0f0f0';
+                document.getElementById('tab-catalog').style.color = '#555';
+            }
+            renderVolumeList();
+        }
+
+        function renderVolumeList() {
+            const work = getWorkById(currentWorkId);
+            if (!work) return;
+            const container = document.getElementById('volume-list-container');
+            container.innerHTML = '';
+            if (work.volumes.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">暂无分卷，点击下方按钮新建</div>';
+                return;
+            }
+            work.volumes.forEach(volume => {
+                const volDiv = document.createElement('div');
+                volDiv.className = 'volume-item';
+                // 卷头部
+                const volHeader = document.createElement('div');
+                volHeader.className = 'volume-header';
+                volHeader.innerHTML = `
+                    <div class="volume-title">📁 ${volume.title}</div>
+                    <div class="volume-actions">
+                        <span onclick="editVolume('${volume.id}')">✏️</span>
+                        <span onclick="moveVolume('${volume.id}', -1)">⬆️</span>
+                        <span onclick="moveVolume('${volume.id}', 1)">⬇️</span>
+                        <span onclick="deleteVolume('${volume.id}')">🗑️</span>
+                        <span onclick="addChapter('${volume.id}')">➕章</span>
+                    </div>
+                `;
+                volDiv.appendChild(volHeader);
+                // 章节列表（根据当前tab过滤）
+                const chapters = volume.chapters.filter(ch => {
+                    if (currentDetailTab === 'catalog') return ch.type === 'text';
+                    else return ch.type !== 'text';
+                });
+                chapters.forEach(ch => {
+                    const chDiv = document.createElement('div');
+                    chDiv.className = 'chapter-item';
+                    chDiv.innerHTML = `
+                        <span class="chapter-type">${ch.type === 'text' ? '正文' : ch.type === 'setting' ? '设定' : '大纲'}</span>
+                        <span class="chapter-title">${ch.title}</span>
+                        <div class="chapter-actions">
+                            <span onclick="editChapter('${volume.id}', '${ch.id}')">✏️</span>
+                            <span onclick="moveChapter('${volume.id}', '${ch.id}', -1)">⬆️</span>
+                            <span onclick="moveChapter('${volume.id}', '${ch.id}', 1)">⬇️</span>
+                            <span onclick="deleteChapter('${volume.id}', '${ch.id}')">🗑️</span>
+                        </div>
+                    `;
+                    chDiv.addEventListener('click', (e) => {
+                        // 如果点击的是操作按钮，阻止冒泡
+                        if (e.target.closest('.chapter-actions')) return;
+                        openEditor(volume.id, ch.id);
+                    });
+                    volDiv.appendChild(chDiv);
+                });
+                if (chapters.length === 0) {
+                    const emptyCh = document.createElement('div');
+                    emptyCh.style.cssText = 'padding:8px; color:#bbb; font-size:13px; text-align:center;';
+                    emptyCh.textContent = currentDetailTab === 'catalog' ? '暂无正文章节' : '暂无设定/大纲';
+                    volDiv.appendChild(emptyCh);
+                }
+                container.appendChild(volDiv);
+            });
+        }
+
+        function showAddVolumeModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">新建分卷</div>
+                    <label>分卷名</label>
+                    <input type="text" id="new-volume-title" placeholder="如：第一卷">
+                    <div class="modal-actions">
+                        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                        <button class="btn" onclick="createVolume()">创建</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-container').appendChild(modal);
+        }
+
+        function createVolume() {
+            const title = document.getElementById('new-volume-title').value.trim();
+            if (!title) {
+                showToast('请输入分卷名');
+                return;
+            }
+            const work = getWorkById(currentWorkId);
+            work.volumes.push({
+                id: generateId(),
+                title: title,
+                chapters: []
+            });
+            work.updatedAt = new Date().toISOString();
+            saveData();
+            document.querySelector('.modal-overlay').remove();
+            renderVolumeList();
+            renderWorkDetail();
+            showToast('分卷已创建');
+        }
+
+        function editVolume(volumeId) {
+            const work = getWorkById(currentWorkId);
+            const vol = getVolume(work, volumeId);
+            if (!vol) return;
+            const newTitle = prompt('修改分卷名：', vol.title);
+            if (newTitle && newTitle.trim()) {
+                vol.title = newTitle.trim();
+                saveData();
+                renderVolumeList();
+            }
+        }
+
+        function moveVolume(volumeId, direction) {
+            const work = getWorkById(currentWorkId);
+            const index = work.volumes.findIndex(v => v.id === volumeId);
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= work.volumes.length) return;
+            [work.volumes[index], work.volumes[newIndex]] = [work.volumes[newIndex], work.volumes[index]];
+            saveData();
+            renderVolumeList();
+        }
+
+        function deleteVolume(volumeId) {
+            if (!confirm('确定删除该分卷及其所有章节？')) return;
+            const work = getWorkById(currentWorkId);
+            work.volumes = work.volumes.filter(v => v.id !== volumeId);
+            saveData();
+            renderVolumeList();
+            renderWorkDetail();
+            showToast('已删除');
+        }
+
+        function addChapter(volumeId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-title">新建章节</div>
+                    <label>章节名</label>
+                    <input type="text" id="new-chapter-title" placeholder="如：第一章 相遇">
+                    <label>类型</label>
+                    <select id="new-chapter-type">
+                        <option value="text">正文</option>
+                        <option value="setting">设定</option>
+                        <option value="outline">大纲</option>
+                    </select>
+                    <div class="modal-actions">
+                        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                        <button class="btn" onclick="createChapter('${volumeId}')">创建</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-container').appendChild(modal);
+        }
+
+        function createChapter(volumeId) {
+            const title = document.getElementById('new-chapter-title').value.trim();
+            if (!title) {
+                showToast('请输入章节名');
+                return;
+            }
+            const type = document.getElementById('new-chapter-type').value;
+            const work = getWorkById(currentWorkId);
+            const vol = getVolume(work, volumeId);
+            vol.chapters.push({
+                id: generateId(),
+                title: title,
+                type: type,
+                content: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            work.updatedAt = new Date().toISOString();
+            saveData();
+            document.querySelector('.modal-overlay').remove();
+            renderVolumeList();
+            renderWorkDetail();
+            showToast('章节已创建');
+        }
+
+        function editChapter(volumeId, chapterId) {
+            const work = getWorkById(currentWorkId);
+            const ch = getChapter(work, volumeId, chapterId);
+            if (!ch) return;
+            const newTitle = prompt('修改章节名：', ch.title);
+            if (newTitle && newTitle.trim()) {
+                ch.title = newTitle.trim();
+                ch.updatedAt = new Date().toISOString();
+                saveData();
+                renderVolumeList();
+            }
+        }
+
+        function moveChapter(volumeId, chapterId, direction) {
+            const work = getWorkById(currentWorkId);
+            const vol = getVolume(work, volumeId);
+            const index = vol.chapters.findIndex(c => c.id === chapterId);
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= vol.chapters.length) return;
+            [vol.chapters[index], vol.chapters[newIndex]] = [vol.chapters[newIndex], vol.chapters[index]];
+            saveData();
+            renderVolumeList();
+        }
+
+        function deleteChapter(volumeId, chapterId) {
+            if (!confirm('确定删除该章节？')) return;
+            const work = getWorkById(currentWorkId);
+            const vol = getVolume(work, volumeId);
+            vol.chapters = vol.chapters.filter(c => c.id !== chapterId);
+            saveData();
+            renderVolumeList();
+            renderWorkDetail();
+            showToast('已删除');
+        }
+
+        // ==================== 编辑器 ====================
+        function openEditor(volumeId, chapterId) {
+            const work = getWorkById(currentWorkId);
+            const ch = getChapter(work, volumeId, chapterId);
+            if (!ch) return;
+            currentVolumeId = volumeId;
+            currentChapterId = chapterId;
+            currentChapterType = ch.type;
+            document.querySelectorAll('.main-content, .editor-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('view-editor').classList.remove('hidden');
+            document.getElementById('editor-chapter-title').textContent = ch.title;
+            const textarea = document.getElementById('editor-textarea');
+            textarea.value = ch.content;
+            lastSavedContent = ch.content;
+            undoStack = [];
+            redoStack = [];
+            updateWordCount();
+            startEditorTimer();
+            // 自动保存
+            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setInterval(() => {
+                if (textarea.value !== lastSavedContent) {
+                    saveCurrentChapter(false);
+                }
+            }, 5000);
+            textarea.focus();
+            // 记录编辑时长
+            editorStartTime = Date.now();
+            wordCountInterval = setInterval(updateEditorStats, 1000);
+        }
+
+        function saveCurrentChapter(showMsg = true) {
+            const work = getWorkById(currentWorkId);
+            const ch = getChapter(work, currentVolumeId, currentChapterId);
+            if (!ch) return;
+            const content = document.getElementById('editor-textarea').value;
+            ch.content = content;
+            ch.updatedAt = new Date().toISOString();
+            work.updatedAt = new Date().toISOString();
+            lastSavedContent = content;
+            saveData();
+            if (showMsg) showToast('已保存');
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const content = document.getElementById('editor-textarea').value;
+            const words = countWords(content);
+            document.getElementById('editor-word-count').textContent = words + '字';
+            document.getElementById('editor-stats').childNodes[0].textContent = `字数:${words} | `;
+        }
+
+        function updateEditorStats() {
+            if (!editorStartTime) return;
+            const elapsed = (Date.now() - editorStartTime) / 1000;
+            const content = document.getElementById('editor-textarea').value;
+            const words = countWords(content);
+            const speed = elapsed > 0 ? Math.round(words / (elapsed / 60)) : 0;
+            const timeStr = formatTime(elapsed);
+            document.getElementById('editor-stats').childNodes[0].textContent = `字数:${words} | 速度:${speed}字/分 | 时长:${timeStr}`;
+        }
+
+        function startEditorTimer() {
+            // 用于后续退出时统计写作时长
+        }
+
+        function exitEditor() {
+            // 保存当前内容
+            if (document.getElementById('editor-textarea').value !== lastSavedContent) {
+                saveCurrentChapter(false);
+            }
+            clearInterval(wordCountInterval);
+            clearInterval(autoSaveTimeout);
+            // 每日首次退出弹窗询问是否保存（实际已保存，这里作为提示）
+            const today = new Date().toDateString();
+            if (appData.settings.lastDailyPrompt !== today) {
+                appData.settings.lastDailyPrompt = today;
+                saveData();
+                if (confirm('今日第一次退出，内容已自动保存，是否返回？')) {
+                    navigateTo('work-detail');
+                }
+            } else {
+                navigateTo('work-detail');
+            }
+        }
+
+        function smartFormat() {
+            const textarea = document.getElementById('editor-textarea');
+            let text = textarea.value;
+            // 简单排版：段首缩进，合并多余空行
+            text = text.replace(/\n{3,}/g, '\n\n');
+            text = text.replace(/\n/g, '\n　　'); // 全角空格缩进
+            text = text.replace(/^　　/, ''); // 去掉第一段多余缩进
+            textarea.value = text;
+            saveCurrentChapter(false);
+            updateWordCount();
+            showToast('已智能排版');
+        }
+
+        function undoEdit() {
+            const textarea = document.getElementById('editor-textarea');
+            if (undoStack.length === 0) return;
+            redoStack.push(textarea.value);
+            textarea.value = undoStack.pop();
+            updateWordCount();
+            if (textarea.value !== lastSavedContent) {
+                // 标记已修改
+            }
+        }
+
+        function redoEdit() {
+            const textarea = document.getElementById('editor-textarea');
+            if (redoStack.length === 0) return;
+            undoStack.push(textarea.value);
+            textarea.value = redoStack.pop();
+            updateWordCount();
+        }
+
+        // 监听编辑器的输入以支持撤销/重做（简化版）
+        let lastInputValue = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('editor-textarea');
+            textarea.addEventListener('input', () => {
+                if (textarea.value !== lastInputValue) {
+                    undoStack.push(lastInputValue);
+                    if (undoStack.length > 100) undoStack.shift();
+                    redoStack = [];
+                    lastInputValue = textarea.value;
+                    updateWordCount();
+                }
+            });
+            textarea.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'z') {
+                    e.preventDefault();
+                    undoEdit();
+                } else if (e.ctrlKey && e.key === 'y') {
+                    e.preventDefault();
+                    redoEdit();
+                }
+            });
+        });
+
+        // ==================== 我的页面 ====================
+        function updateProfileStats() {
+            const totalWorks = appData.works.length;
+            let totalChapters = 0, totalWords = 0;
+            appData.works.forEach(work => {
+                work.volumes.forEach(vol => {
+                    vol.chapters.forEach(ch => {
+                        if (ch.type === 'text') {
+                            totalChapters++;
+                            totalWords += countWords(ch.content);
+                        }
+                    });
+                });
+            });
+            document.getElementById('stat-works').textContent = totalWorks;
+            document.getElementById('stat-chapters').textContent = totalChapters;
+            document.getElementById('stat-words').textContent = totalWords;
+            document.getElementById('stat-time').textContent = '0'; // 暂时无法统计时长
+        }
+
+        function clearAllData() {
+            if (!confirm('确定清空所有数据？此操作不可恢复！')) return;
+            if (!confirm('再次确认：所有作品和章节将被删除！')) return;
+            appData = { works: [], settings: { lastDailyPrompt: '' } };
+            saveData();
+            navigateTo('home');
+            showToast('数据已清空');
+        }
+        // ==================== 导出功能 ====================
+function generateWorkText(workId, format) {
+    const work = getWorkById(workId);
+    if (!work) return '';
+    let output = '';
+    const lineBreak = '\n';
+
+    if (format === 'txt') {
+        output += `《${work.title}》\n`;
+        output += `作者：${work.author}\n`;
+        if (work.intro) output += `简介：${work.intro}\n`;
+        output += lineBreak;
+        output += `====================\n\n`;
+    } else if (format === 'markdown') {
+        output += `# ${work.title}\n\n`;
+        output += `**作者：** ${work.author}\n\n`;
+        if (work.intro) output += `**简介：** ${work.intro}\n\n`;
+        output += `---\n\n`;
+    }
+
+    work.volumes.forEach(vol => {
+        if (format === 'txt') {
+            output += `【${vol.title}】\n`;
+        } else if (format === 'markdown') {
+            output += `## ${vol.title}\n\n`;
+        }
+
+        vol.chapters.forEach(ch => {
+            if (format === 'txt') {
+                output += `\n${ch.title}\n`;
+                output += `${ch.content}\n`;
+                output += `\n`;
+            } else if (format === 'markdown') {
+                output += `### ${ch.title}\n\n`;
+                output += `${ch.content}\n\n`;
+            }
+        });
+    });
+
+    return output;
+}
+
+function exportWork(workId, format) {
+    const work = getWorkById(workId);
+    if (!work) {
+        showToast('作品不存在');
+        return;
+    }
+    const content = generateWorkText(workId, format);
+    const safeTitle = work.title.replace(/[\\/:*?"<>|]/g, '_');
+    const fileName = `${safeTitle}.${format === 'txt' ? 'txt' : 'md'}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`已导出 ${fileName}`);
+    }
+         // ==================== 工具栏导出弹窗 ====================
+function showExportModal() {
+    if (appData.works.length === 0) {
+        showToast('暂无作品可导出');
+        return;
+    }
+    let workOptions = '';
+    appData.works.forEach(work => {
+        workOptions += `<option value="${work.id}">${work.title}</option>`;
+    });
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-title">导出作品</div>
+            <label>选择作品</label>
+            <select id="export-work-select">
+                ${workOptions}
+            </select>
+            <label>导出格式</label>
+            <select id="export-format-select">
+                <option value="txt">TXT 文本</option>
+                <option value="markdown">Markdown</option>
+            </select>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                <button class="btn" onclick="confirmExport()">导出</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('modal-container').appendChild(modal);
+}
+
+function confirmExport() {
+    const workId = document.getElementById('export-work-select').value;
+    const format = document.getElementById('export-format-select').value;
+    exportWork(workId, format);
+    document.querySelector('.modal-overlay').remove();
+}
+        // ==================== 初始化 ====================
+        window.onload = function() {
+            navigateTo('home');
+            renderWorksList();
+        };
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js').then(function(registration) {
+                console.log('Service Worker 注册成功');
+            }).catch(function(err) {
+                console.log('Service Worker 注册失败:', err);
+            });
+        });
+    }
+</script>
+</body>
+</html>
