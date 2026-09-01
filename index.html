@@ -402,7 +402,7 @@
             <div class="header-actions">
                 <span onclick="showNewWorkModal()" title="新建作品">➕</span>
                 <span onclick="showToast('数据已保存到本地')" title="保存">💾</span>
-                <span onclick="showToast('工具功能开发中')" title="工具">🛠️</span>
+                <span onclick="showToolsMenu()" title="工具">🛠️</span>
             </div>
         </div>
         <div id="works-list"></div>
@@ -491,11 +491,13 @@
         </div>
         <div class="card">
             <div style="display:flex; align-items:center;">
-                <div style="width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin-right:16px;">我</div>
-                <div>
-                    <div style="font-weight:600; font-size:18px;">写作爱好者</div>
-                    <div style="color:var(--text-light); font-size:13px;">一个热爱创作的人</div>
-                </div>
+    <div style="width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin-right:16px;">我</div>
+    <div style="flex:1;">
+        <div style="font-weight:600; font-size:18px;" id="profile-name">写作爱好者</div>
+        <div style="color:var(--text-light); font-size:13px;" id="profile-signature">一个热爱创作的人</div>
+    </div>
+    <span onclick="editProfile()" style="font-size:18px; color:var(--primary); cursor:pointer;">✏️</span>
+</div>
             </div>
         </div>
         <div class="card">
@@ -515,7 +517,7 @@
         <div class="card">
             <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">同步备份 <span style="float:right; color:#999;">开发中</span></div>
             <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">成就系统 <span style="float:right; color:#999;">开发中</span></div>
-            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">关于我们 <span style="float:right; color:#999;">v0.1</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;">关于我们 <span style="float:right; color:#999;">v1.0.2</span></div>
             <div style="padding:12px 0; color:var(--danger); cursor:pointer;" onclick="clearAllData()">清空数据</div>
             <div style="padding:12px 0; color:var(--danger); cursor:pointer;">退出登录</div>
         </div>
@@ -750,7 +752,8 @@
 
         function createNewWork() {
             const title = document.getElementById('new-work-title').value.trim();
-            const author = document.getElementById('new-work-author').value.trim() || '佚名';
+            const defaultAuthor = localStorage.getItem('user_name') || '写作爱好者';
+            const author = document.getElementById('new-work-author').value.trim() || defaultAuthor;
             const intro = document.getElementById('new-work-intro').value.trim();
             const tags = document.getElementById('new-work-tags').value.split(',').map(t => t.trim()).filter(t => t);
             if (!title) {
@@ -862,6 +865,11 @@
                 </div>
              `;
             renderVolumeList();
+             // 根据当前Tab设置新建按钮文字
+const addBtn = document.querySelector('#view-work-detail .btn[onclick="showAddVolumeModal()"]');
+if (addBtn) {
+    addBtn.textContent = currentDetailTab === 'catalog' ? '➕ 新建分卷' : '➕ 新建相关';
+}
         }
 
         let currentDetailTab = 'catalog'; // 'catalog' or 'related'
@@ -1366,8 +1374,64 @@ function confirmExport() {
     exportWork(workId, format);
     document.querySelector('.modal-overlay').remove();
 }
+         // 个人资料编辑
+function editProfile() {
+    const currentName = localStorage.getItem('user_name') || '写作爱好者';
+    const currentSig = localStorage.getItem('user_signature') || '一个热爱创作的人';
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-title">编辑个人资料</div>
+            <label>姓名</label>
+            <input type="text" id="edit-name" value="${currentName}">
+            <label>签名</label>
+            <input type="text" id="edit-signature" value="${currentSig}">
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                <button class="btn" onclick="saveProfile()">保存</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('modal-container').appendChild(modal);
+}
+
+function saveProfile() {
+    const name = document.getElementById('edit-name').value.trim() || '写作爱好者';
+    const sig = document.getElementById('edit-signature').value.trim() || '一个热爱创作的人';
+    localStorage.setItem('user_name', name);
+    localStorage.setItem('user_signature', sig);
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-signature').textContent = sig;
+    document.querySelector('.modal-overlay').remove();
+    showToast('资料已更新');
+}
+
+// 初始化时加载个人资料
+function loadProfile() {
+    const name = localStorage.getItem('user_name') || '写作爱好者';
+    const sig = localStorage.getItem('user_signature') || '一个热爱创作的人';
+    const nameEl = document.getElementById('profile-name');
+    const sigEl = document.getElementById('profile-signature');
+    if (nameEl) nameEl.textContent = name;
+    if (sigEl) sigEl.textContent = sig;
+}
+         function showToolsMenu() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-title">书架工具</div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;" onclick="showToast('功能正在开发中'); this.closest('.modal-overlay').remove();">全局搜索 <span style="float:right;">›</span></div>
+            <div style="padding:12px 0; border-bottom:1px solid #f0f0f0;" onclick="showToast('功能正在开发中'); this.closest('.modal-overlay').remove();">书架排序 <span style="float:right;">›</span></div>
+            <div style="padding:12px 0;" onclick="showToast('功能正在开发中'); this.closest('.modal-overlay').remove();">书架设置 <span style="float:right;">›</span></div>
+        </div>
+    `;
+    document.getElementById('modal-container').appendChild(modal);
+         }
         // ==================== 初始化 ====================
         window.onload = function() {
+            loadProfile();
             navigateTo('home');
             renderWorksList();
         };
